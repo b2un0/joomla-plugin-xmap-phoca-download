@@ -76,4 +76,7 @@
             </fieldset>
         </fields>
     </config>
+	<updateservers>
+		<server type="extension" priority="1" name="Xmap - Phoca Download">http://www.z-index.net/en/joomla/xmap-phoca-download/updatestream.xml</server>
+	</updateservers>
 </extension>
