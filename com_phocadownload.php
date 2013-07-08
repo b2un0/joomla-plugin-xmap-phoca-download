@@ -9,7 +9,12 @@
  
 defined('_JEXEC') or die;
 
-require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
+if(version_compare(JVERSION, '3', '>=') || JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
+	require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
+}else{
+	require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
+	final class PhocaDownloadRoute extends PhocaDownloadHelperRoute {} // workaround :)
+}
 
 final class xmap_com_phocadownload {
 	
@@ -78,7 +83,7 @@ final class xmap_com_phocadownload {
 			$node->priority = $params['category_priority'];
 			$node->changefreq = $params['category_changefreq'];
 			$node->pid = $row->parent_id;
-			$node->link = PhocaDownloadHelperRoute::getCategoryRoute($row->id);
+			$node->link = PhocaDownloadRoute::getCategoryRoute($row->id);
 			
 			if ($xmap->printNode($node) !== false) {
 				self::getCategoryTree($xmap, $parent, $params, $row->id);
@@ -118,7 +123,7 @@ final class xmap_com_phocadownload {
 			$node->browserNav = $parent->browserNav;
 			$node->priority = $params['download_priority'];
 			$node->changefreq = $params['download_changefreq'];
-			$node->link = PhocaDownloadHelperRoute::getFileRoute($row->id, $catid);
+			$node->link = PhocaDownloadRoute::getFileRoute($row->id, $catid);
 			
 			$xmap->printNode($node);
 		}
