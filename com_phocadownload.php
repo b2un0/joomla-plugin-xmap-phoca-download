@@ -19,12 +19,18 @@ if(version_compare(JVERSION, '3', '>=') || JFile::exists(JPATH_ADMINISTRATOR . '
 final class xmap_com_phocadownload {
 	
 	public function getTree(&$xmap, &$parent, &$params) {
-		$include_downloads = self::getParam($params, 'include_downloads', 1);
+		$include_downloads = JArrayHelper::getValue($params, 'include_downloads', 1);
 		$include_downloads = ($include_downloads == 1 || ($include_downloads == 2 && $xmap->view == 'xml') || ($include_downloads == 3 && $xmap->view == 'html'));
 		$params['include_downloads'] = $include_downloads;
 		
-		$priority = self::getParam($params, 'category_priority', $parent->priority);
-		$changefreq = self::getParam($params, 'category_changefreq', $parent->changefreq);
+		$show_unauth = JArrayHelper::getValue($params, 'show_unauth');
+		$show_unauth = ($show_unauth == 1 || ( $show_unauth == 2 && $xmap->view == 'xml') || ( $show_unauth == 3 && $xmap->view == 'html'));
+		$params['show_unauth'] = $show_unauth;
+		
+		$params['groups'] = implode(',', JFactory::getUser()->getAuthorisedViewLevels());
+		
+		$priority = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
+		$changefreq = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
 		
 		if($priority == -1) {
 			$priority = $parent->priority;
@@ -33,12 +39,12 @@ final class xmap_com_phocadownload {
 		if($changefreq == -1) {
 			$changefreq = $parent->changefreq;
 		}
-		
+			
 		$params['category_priority'] = $priority;
 		$params['category_changefreq'] = $changefreq;
 		
-		$priority = self::getParam($params, 'download_priority', $parent->priority);
-		$changefreq = self::getParam($params, 'download_changefreq', $parent->changefreq);
+		$priority = JArrayHelper::getValue($params, 'download_priority', $parent->priority);
+		$changefreq = JArrayHelper::getValue($params, 'download_changefreq', $parent->changefreq);
 		
 		if($priority == -1) {
 			$priority = $parent->priority;
@@ -64,6 +70,10 @@ final class xmap_com_phocadownload {
 				->where('parent_id = ' . $db->quote($parent_id))
 				->where('published = 1')
 				->order('ordering');
+		
+		if (!$params['show_unauth']) {
+			$query->where('access IN(' . $params['groups'] . ')');
+		}
 		
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
@@ -106,6 +116,10 @@ final class xmap_com_phocadownload {
 				->where('published = 1')
 				->order('ordering');
 		
+		if (!$params['show_unauth']) {
+			$query->where('access IN(' . $params['groups'] . ')');
+		}
+		
 		$db->setQuery($query);
 		$rows = $db->loadObjectList();
 		
@@ -129,9 +143,5 @@ final class xmap_com_phocadownload {
 		}
 		
 		$xmap->changeLevel(-1);
-	}
-	
-	private static function getParam($arr, $name, $default) {
-		return JArrayHelper::getValue($arr, $name, $default);
 	}
 }
