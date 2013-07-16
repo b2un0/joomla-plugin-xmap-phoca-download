@@ -110,7 +110,7 @@ final class xmap_com_phocadownload {
 		$db = JFactory::getDbo();
 		
 		$query = $db->getQuery(true)
-				->select(array('id', 'title', 'date'))
+				->select(array('id', 'title'))
 				->from('#__phocadownload')
 				->where('catid = ' . $db->Quote($catid))
 				->where('published = 1')
