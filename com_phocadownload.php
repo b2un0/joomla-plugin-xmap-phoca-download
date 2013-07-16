@@ -9,7 +9,7 @@
  
 defined('_JEXEC') or die;
 
-if(version_compare(JVERSION, '3', '>=') || JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
+if(JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
 	require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
 }else{
 	require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
