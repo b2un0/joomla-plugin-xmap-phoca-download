@@ -18,7 +18,7 @@ if(JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/
 
 final class xmap_com_phocadownload {
 	
-	private static $views = array('categories', 'category', 'file');
+	private static $views = array('categories', 'category');
 	
 	public static function getTree(&$xmap, &$parent, &$params) {
 		$uri = new JUri($parent->link);
@@ -68,16 +68,11 @@ final class xmap_com_phocadownload {
 		switch($uri->getVar('view')) {
 			case 'categories':
 				self::getCategoryTree($xmap, $parent, $params, 0);
-				break;
+			break;
 					
 			case 'category':
-				self::getCategoryTree($xmap, $parent, $params, $uri->getVar('id'));
-				break;
-					
-			case 'file':
-				self::getDownload($xmap, $parent, $params, $uri->getVar('id', 0));
-				break;
-					
+				self::getDownloads($xmap, $parent, $params, $uri->getVar('id'));
+			break;					
 		}
 	}
 	
@@ -123,42 +118,6 @@ final class xmap_com_phocadownload {
 			}
 		}
 		
-		$xmap->changeLevel(-1);
-	}
-	
-	private static function getDownload(&$xmap, &$parent, &$params, $id) {
-		$db = JFactory::getDbo();
-	
-		$query = $db->getQuery(true)
-		->select(array('id', 'title', 'catid'))
-		->from('#__phocadownload')
-		->where('id = ' . $db->Quote($id))
-		->where('published = 1');
-	
-		if (!$params['show_unauth']) {
-			$query->where('access IN(' . $params['groups'] . ')');
-		}
-	
-		$db->setQuery($query);
-		$rows = $db->loadObject();
-	
-		if(empty($row)) {
-			return;
-		}
-	
-		$xmap->changeLevel(1);
-	
-		$node = new stdclass;
-		$node->id = $parent->id;
-		$node->name = $row->title;
-		$node->uid = $parent->uid . '_' . $row->id;
-		$node->browserNav = $parent->browserNav;
-		$node->priority = $params['download_priority'];
-		$node->changefreq = $params['download_changefreq'];
-		$node->link = PhocaDownloadRoute::getFileRoute($row->id, $row->catid);
-			
-		$xmap->printNode($node);
-	
 		$xmap->changeLevel(-1);
 	}
 
