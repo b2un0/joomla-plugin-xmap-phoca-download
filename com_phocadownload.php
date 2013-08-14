@@ -80,14 +80,14 @@ final class xmap_com_phocadownload {
 		$db = JFactory::getDbo();
 		
 		$query = $db->getQuery(true)
-				->select(array('id', 'title', 'parent_id'))
-				->from('#__phocadownload_categories')
-				->where('parent_id = ' . $db->quote($parent_id))
-				->where('published = 1')
-				->order('ordering');
+				->select(array('c.id', 'c.title', 'c.parent_id'))
+				->from('#__phocadownload_categories AS c')
+				->where('c.parent_id = ' . $db->quote($parent_id))
+				->where('c.published = 1')
+				->order('c.ordering');
 		
 		if (!$params['show_unauth']) {
-			$query->where('access IN(' . $params['groups'] . ')');
+			$query->where('c.access IN(' . $params['groups'] . ')');
 		}
 		
 		$db->setQuery($query);
