@@ -20,7 +20,7 @@ final class xmap_com_phocadownload {
 	
 	private static $views = array('categories', 'category');
 	
-	public static function getTree(&$xmap, &$parent, &$params) {
+	public static function getTree(XmapXmlDisplayer &$xmap, stdClass &$parent, array &$params) {
 		$uri = new JUri($parent->link);
 		
 		if(!in_array($uri->getVar('view'), self::$views)) {
@@ -76,7 +76,7 @@ final class xmap_com_phocadownload {
 		}
 	}
 	
-	private static function getCategoryTree(&$xmap, &$parent, &$params, $parent_id) {
+	private static function getCategoryTree(XmapXmlDisplayer &$xmap, stdClass &$parent, array &$params, $parent_id) {
 		$db = JFactory::getDbo();
 		
 		$query = $db->getQuery(true)
@@ -121,7 +121,7 @@ final class xmap_com_phocadownload {
 		$xmap->changeLevel(-1);
 	}
 
-	private static function getDownloads(&$xmap, &$parent, &$params, $catid) {
+	private static function getDownloads(XmapXmlDisplayer &$xmap, stdClass &$parent, array &$params, $catid) {
 		$db = JFactory::getDbo();
 		$now = JFactory::getDate()->toSql();
 		
