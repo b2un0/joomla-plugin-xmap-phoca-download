@@ -123,16 +123,19 @@ final class xmap_com_phocadownload {
 
 	private static function getDownloads(&$xmap, &$parent, &$params, $catid) {
 		$db = JFactory::getDbo();
+		$now = JFactory::getDate()->toSql();
 		
 		$query = $db->getQuery(true)
-				->select(array('id', 'title'))
-				->from('#__phocadownload')
-				->where('catid = ' . $db->Quote($catid))
-				->where('published = 1')
-				->order('ordering');
+				->select(array('d.id', 'd.title'))
+				->from('#__phocadownload AS d')
+				->where('d.catid = ' . $db->Quote($catid))
+				->where('d.published = 1')
+				->where('(d.publish_up = ' . $db->quote($db->getNullDate()) . ' OR d.publish_up <= ' . $db->quote($now) . ')')
+				->where('(d.publish_down = ' . $db->quote($db->getNullDate()) . ' OR d.publish_down >= ' . $db->quote($now) . ')')
+				->order('d.ordering');
 		
 		if (!$params['show_unauth']) {
-			$query->where('access IN(' . $params['groups'] . ')');
+			$query->where('d.access IN(' . $params['groups'] . ')');
 		}
 		
 		$db->setQuery($query);
