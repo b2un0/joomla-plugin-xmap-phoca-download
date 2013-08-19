@@ -65,6 +65,8 @@ final class xmap_com_phocadownload {
 		$params['download_priority'] = $priority;
 		$params['download_changefreq'] = $changefreq;
 		
+		$params['language_filter'] = JFactory::getApplication()->getLanguageFilter();
+		
 		switch($uri->getVar('view')) {
 			case 'categories':
 				self::getCategoryTree($xmap, $parent, $params, 0);
@@ -86,8 +88,12 @@ final class xmap_com_phocadownload {
 				->where('c.published = 1')
 				->order('c.ordering');
 		
-		if (!$params['show_unauth']) {
+		if(!$params['show_unauth']) {
 			$query->where('c.access IN(' . $params['groups'] . ')');
+		}
+		
+		if($params['language_filter']) {
+		    $query->where('c.language IN(' . $db->quote(JFactory::getLanguage()->getTag()) . ', ' . $db->quote('*') . ')');
 		}
 		
 		$db->setQuery($query);
@@ -136,6 +142,10 @@ final class xmap_com_phocadownload {
 		
 		if (!$params['show_unauth']) {
 			$query->where('d.access IN(' . $params['groups'] . ')');
+		}
+		
+		if($params['language_filter']) {
+		    $query->where('d.language IN(' . $db->quote(JFactory::getLanguage()->getTag()) . ', ' . $db->quote('*') . ')');
 		}
 		
 		$db->setQuery($query);
