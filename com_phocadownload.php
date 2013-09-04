@@ -82,7 +82,7 @@ final class xmap_com_phocadownload {
 		$db = JFactory::getDbo();
 		
 		$query = $db->getQuery(true)
-				->select(array('c.id', 'c.title', 'c.parent_id'))
+				->select(array('c.id', 'c.alias', 'c.title', 'c.parent_id'))
 				->from('#__phocadownload_categories AS c')
 				->where('c.parent_id = ' . $db->quote($parent_id))
 				->where('c.published = 1')
@@ -114,7 +114,7 @@ final class xmap_com_phocadownload {
 			$node->priority = $params['category_priority'];
 			$node->changefreq = $params['category_changefreq'];
 			$node->pid = $row->parent_id;
-			$node->link = PhocaDownloadRoute::getCategoryRoute($row->id);
+			$node->link = PhocaDownloadRoute::getCategoryRoute($row->id . ':' . $row->alias);
 			
 			if ($xmap->printNode($node) !== false) {
 				self::getCategoryTree($xmap, $parent, $params, $row->id);
@@ -132,7 +132,7 @@ final class xmap_com_phocadownload {
 		$now = JFactory::getDate()->toSql();
 		
 		$query = $db->getQuery(true)
-				->select(array('d.id', 'd.title'))
+				->select(array('d.id', 'd.alias', 'd.title'))
 				->from('#__phocadownload AS d')
 				->where('d.catid = ' . $db->Quote($catid))
 				->where('d.published = 1')
@@ -165,7 +165,7 @@ final class xmap_com_phocadownload {
 			$node->browserNav = $parent->browserNav;
 			$node->priority = $params['download_priority'];
 			$node->changefreq = $params['download_changefreq'];
-			$node->link = PhocaDownloadRoute::getFileRoute($row->id, $catid);
+			$node->link = PhocaDownloadRoute::getFileRoute($row->id . ':' . $row->alias);
 			
 			$xmap->printNode($node);
 		}
