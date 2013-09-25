@@ -9,63 +9,63 @@
  
 defined('_JEXEC') or die;
 
-if(JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
-	require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
-}else{
-	require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
-	final class PhocaDownloadRoute extends PhocaDownloadHelperRoute {} // workaround :)
+if(JComponentHelper::isEnabled('com_phocadownload')) {
+	if(JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
+		require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
+	}else{
+		require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
+		final class PhocaDownloadRoute extends PhocaDownloadHelperRoute {} // workaround :)
+	}
 }
 
 final class xmap_com_phocadownload {
 	
 	private static $views = array('categories', 'category');
 	
+	private static $enabled = false;
+	
+	public function __construct() {
+		self::$enabled = JComponentHelper::isEnabled('com_phocadownload');
+	}
+	
 	public static function getTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params) {
 		$uri = new JUri($parent->link);
 		
-		if(!in_array($uri->getVar('view'), self::$views)) {
+		if(!self::$enabled || !in_array($uri->getVar('view'), self::$views)) {
 			return;
 		}
 		
-		$include_downloads = JArrayHelper::getValue($params, 'include_downloads');
-		$include_downloads = ($include_downloads == 1 || ($include_downloads == 2 && $xmap->view == 'xml') || ($include_downloads == 3 && $xmap->view == 'html'));
-		$params['include_downloads'] = $include_downloads;
-		
-		$show_unauth = JArrayHelper::getValue($params, 'show_unauth');
-		$show_unauth = ($show_unauth == 1 || ( $show_unauth == 2 && $xmap->view == 'xml') || ( $show_unauth == 3 && $xmap->view == 'html'));
-		$params['show_unauth'] = $show_unauth;
-		
 		$params['groups'] = implode(',', JFactory::getUser()->getAuthorisedViewLevels());
 		
-		$priority = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
-		$changefreq = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
+		$params['language_filter'] = JFactory::getApplication()->getLanguageFilter();
 		
-		if($priority == -1) {
-			$priority = $parent->priority;
+		$params['include_downloads'] = JArrayHelper::getValue($params, 'include_downloads', 1);
+		$params['include_downloads'] = ($params['include_downloads'] == 1 || ($params['include_downloads'] == 2 && $xmap->view == 'xml') || ($params['include_downloads'] == 3 && $xmap->view == 'html'));
+		
+		$params['show_unauth'] = JArrayHelper::getValue($params, 'show_unauth', 0);
+		$show_unauth = ($params['show_unauth'] == 1 || ( $params['show_unauth'] == 2 && $xmap->view == 'xml') || ( $params['show_unauth'] == 3 && $xmap->view == 'html'));
+		
+		$params['category_priority'] = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
+		$params['category_changefreq'] = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
+		
+		if($params['category_priority'] == -1) {
+			$params['category_priority'] = $parent->priority;
 		}
 		
-		if($changefreq == -1) {
-			$changefreq = $parent->changefreq;
+		if($params['category_changefreq'] == -1) {
+			$params['category_changefreq'] = $parent->changefreq;
 		}
 			
-		$params['category_priority'] = $priority;
-		$params['category_changefreq'] = $changefreq;
+		$params['download_priority'] = JArrayHelper::getValue($params, 'download_priority', $parent->priority);
+		$params['download_changefreq'] = JArrayHelper::getValue($params, 'download_changefreq', $parent->changefreq);
 		
-		$priority = JArrayHelper::getValue($params, 'download_priority', $parent->priority);
-		$changefreq = JArrayHelper::getValue($params, 'download_changefreq', $parent->changefreq);
-		
-		if($priority == -1) {
-			$priority = $parent->priority;
+		if($params['download_priority'] == -1) {
+			$params['download_priority'] = $parent->priority;
 		}
 		
-		if($changefreq == -1) {
-			$changefreq = $parent->changefreq;
+		if($params['download_changefreq'] == -1) {
+			$params['download_changefreq'] = $parent->changefreq;
 		}
-		
-		$params['download_priority'] = $priority;
-		$params['download_changefreq'] = $changefreq;
-		
-		$params['language_filter'] = JFactory::getApplication()->getLanguageFilter();
 		
 		switch($uri->getVar('view')) {
 			case 'categories':
@@ -129,7 +129,7 @@ final class xmap_com_phocadownload {
 
 	private static function getDownloads(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $catid) {
 		$db = JFactory::getDbo();
-		$now = JFactory::getDate()->toSql();
+		$now = JFactory::getDate('now', 'UTC')->toSql();
 		
 		$query = $db->getQuery(true)
 				->select(array('d.id', 'd.alias', 'd.title'))
