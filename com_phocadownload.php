@@ -3,13 +3,13 @@
 /**
  * @author     Branko Wilhelm <branko.wilhelm@gmail.com>
  * @link       http://www.z-index.net
- * @copyright  (c) 2013 Branko Wilhelm
+ * @copyright  (c) 2013 - 2014 Branko Wilhelm
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
  
 defined('_JEXEC') or die;
 
-if(JComponentHelper::isEnabled('com_phocadownload')) {
+if(JComponentHelper::isEnabled('com_phocadownload') && !class_exists('PhocaDownloadRoute')) {
 	if(JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
 		require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
 	}else{
@@ -117,10 +117,7 @@ final class xmap_com_phocadownload {
 			$node->link = PhocaDownloadRoute::getCategoryRoute($row->id . ':' . $row->alias);
 			
 			if ($xmap->printNode($node) !== false) {
-				self::getCategoryTree($xmap, $parent, $params, $row->id);
-				if ($params['include_downloads']) {
-					self::getDownloads($xmap, $parent, $params, $row->id);
-				}
+				self::getDownloads($xmap, $parent, $params, $row->id);
 			}
 		}
 		
@@ -128,6 +125,12 @@ final class xmap_com_phocadownload {
 	}
 
 	private static function getDownloads(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $catid) {
+	    self::getCategoryTree($xmap, $parent, $params, $catid);
+	    
+	    if (!$params['include_items']) {
+	        return;
+	    }
+	    
 		$db = JFactory::getDbo();
 		$now = JFactory::getDate('now', 'UTC')->toSql();
 		
