@@ -135,7 +135,7 @@ final class xmap_com_phocadownload
     {
         self::getCategoryTree($xmap, $parent, $params, $catid);
 
-        if (!$params['include_items']) {
+        if (!$params['include_downloads']) {
             return;
         }
 
