@@ -25,7 +25,6 @@ final class xmap_com_phocadownload
 {
 
     private static $views = array('categories', 'category');
-
     private static $enabled = false;
 
     public function __construct()
@@ -49,7 +48,7 @@ final class xmap_com_phocadownload
         $params['include_downloads'] = ($params['include_downloads'] == 1 || ($params['include_downloads'] == 2 && $xmap->view == 'xml') || ($params['include_downloads'] == 3 && $xmap->view == 'html'));
 
         $params['show_unauth'] = JArrayHelper::getValue($params, 'show_unauth', 0);
-        $show_unauth = ($params['show_unauth'] == 1 || ($params['show_unauth'] == 2 && $xmap->view == 'xml') || ($params['show_unauth'] == 3 && $xmap->view == 'html'));
+        $params['show_unauth'] = ($params['show_unauth'] == 1 || ($params['show_unauth'] == 2 && $xmap->view == 'xml') || ($params['show_unauth'] == 3 && $xmap->view == 'html'));
 
         $params['category_priority'] = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
         $params['category_changefreq'] = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
