@@ -83,8 +83,8 @@
                     <option value="never">PLG_XMAP_COM_PHOCADOWNLOAD_NEVER</option>
                 </field>
             </fieldset>
-            <fieldset name="basic">
-                <field name="itemid_workaround" type="radio" class="btn-group" default="1" label="PLG_XMAP_COM_PHOCADOWNLOAD_ITEMID_WORKAROUND_LABEL" description="PLG_XMAP_COM_PHOCADOWNLOAD_ITEMID_WORKAROUND_DESV">
+            <fieldset name="advanced">
+                <field name="itemid_workaround" type="radio" class="btn-group" default="0" label="PLG_XMAP_COM_PHOCADOWNLOAD_ITEMID_WORKAROUND_LABEL" description="PLG_XMAP_COM_PHOCADOWNLOAD_ITEMID_WORKAROUND_DESC">
                     <option value="0">JNO</option>
                     <option value="1">JYES</option>
                 </field>
