@@ -44,6 +44,8 @@ final class xmap_com_phocadownload
 
         $params['language_filter'] = JFactory::getApplication()->getLanguageFilter();
 
+        $params['itemid_workaround'] = JArrayHelper::getValue($params, 'itemid_workaround', 0);
+
         $params['include_downloads'] = JArrayHelper::getValue($params, 'include_downloads', 1);
         $params['include_downloads'] = ($params['include_downloads'] == 1 || ($params['include_downloads'] == 2 && $xmap->view == 'xml') || ($params['include_downloads'] == 3 && $xmap->view == 'html'));
 
@@ -122,6 +124,10 @@ final class xmap_com_phocadownload
             $node->pid = $row->parent_id;
             $node->link = PhocaDownloadRoute::getCategoryRoute($row->id . ':' . $row->alias);
 
+            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid=')) {
+                $node->link .= '&Itemid=' . $parent->id;
+            }
+
             if ($xmap->printNode($node) !== false) {
                 self::getDownloads($xmap, $parent, $params, $row->id);
             }
@@ -176,6 +182,10 @@ final class xmap_com_phocadownload
             $node->priority = $params['download_priority'];
             $node->changefreq = $params['download_changefreq'];
             $node->link = PhocaDownloadRoute::getFileRoute($row->id . ':' . $row->alias);
+
+            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid=')) {
+                $node->link .= '&Itemid=' . $parent->id;
+            }
 
             $xmap->printNode($node);
         }
