@@ -25,10 +25,7 @@ class xmap_com_phocadownload
     {
         self::$enabled = JComponentHelper::isEnabled('com_phocadownload');
 
-        if (self::$enabled)
-        {
-            JLoader::register('PhocaDownloadRoute', JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php');
-        }
+        JLoader::register('PhocaDownloadRoute', JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php');
     }
 
     /**
