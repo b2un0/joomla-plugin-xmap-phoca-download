@@ -101,7 +101,7 @@ class xmap_com_phocadownload
      * @param XmapDisplayerInterface $xmap
      * @param stdClass $parent
      * @param array $params
-     * @param $parent_id
+     * @param int $parent_id
      */
     private static function getCategoryTree($xmap, stdClass $parent, array &$params, $parent_id)
     {
@@ -164,7 +164,7 @@ class xmap_com_phocadownload
      * @param XmapDisplayerInterface $xmap
      * @param stdClass $parent
      * @param array $params
-     * @param $catid
+     * @param int $catid
      */
     private static function getDownloads($xmap, stdClass $parent, array &$params, $catid)
     {
