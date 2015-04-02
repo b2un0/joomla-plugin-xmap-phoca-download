@@ -3,40 +3,47 @@
 /**
  * @author     Branko Wilhelm <branko.wilhelm@gmail.com>
  * @link       http://www.z-index.net
- * @copyright  (c) 2013 - 2014 Branko Wilhelm
+ * @copyright  (c) 2013 - 2015 Branko Wilhelm
  * @license    GNU/GPLv3 http://www.gnu.org/licenses/gpl-3.0.html
  */
 
 defined('_JEXEC') or die;
 
-if (JComponentHelper::isEnabled('com_phocadownload') && !class_exists('PhocaDownloadRoute')) {
-    if (JFile::exists(JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php')) {
-        require_once JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php';
-    } else {
-        require_once JPATH_SITE . '/components/com_phocadownload/helpers/route.php';
-
-        final class PhocaDownloadRoute extends PhocaDownloadHelperRoute
-        {
-        } // workaround :)
-    }
-}
-
-final class xmap_com_phocadownload
+class xmap_com_phocadownload
 {
-
+    /**
+     * @var array
+     */
     private static $views = array('categories', 'category');
+
+    /**
+     * @var bool
+     */
     private static $enabled = false;
 
     public function __construct()
     {
         self::$enabled = JComponentHelper::isEnabled('com_phocadownload');
+
+        if (self::$enabled)
+        {
+            JLoader::register('PhocaDownloadRoute', JPATH_ADMINISTRATOR . '/components/com_phocadownload/libraries/phocadownload/path/route.php');
+        }
     }
 
-    public static function getTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     *
+     * @throws Exception
+     */
+    public static function getTree($xmap, stdClass $parent, array &$params)
     {
         $uri = new JUri($parent->link);
 
-        if (!self::$enabled || !in_array($uri->getVar('view'), self::$views)) {
+        if (!self::$enabled || !in_array($uri->getVar('view'), self::$views))
+        {
             return;
         }
 
@@ -55,26 +62,31 @@ final class xmap_com_phocadownload
         $params['category_priority'] = JArrayHelper::getValue($params, 'category_priority', $parent->priority);
         $params['category_changefreq'] = JArrayHelper::getValue($params, 'category_changefreq', $parent->changefreq);
 
-        if ($params['category_priority'] == -1) {
+        if ($params['category_priority'] == -1)
+        {
             $params['category_priority'] = $parent->priority;
         }
 
-        if ($params['category_changefreq'] == -1) {
+        if ($params['category_changefreq'] == -1)
+        {
             $params['category_changefreq'] = $parent->changefreq;
         }
 
         $params['download_priority'] = JArrayHelper::getValue($params, 'download_priority', $parent->priority);
         $params['download_changefreq'] = JArrayHelper::getValue($params, 'download_changefreq', $parent->changefreq);
 
-        if ($params['download_priority'] == -1) {
+        if ($params['download_priority'] == -1)
+        {
             $params['download_priority'] = $parent->priority;
         }
 
-        if ($params['download_changefreq'] == -1) {
+        if ($params['download_changefreq'] == -1)
+        {
             $params['download_changefreq'] = $parent->changefreq;
         }
 
-        switch ($uri->getVar('view')) {
+        switch ($uri->getVar('view'))
+        {
             case 'categories':
                 self::getCategoryTree($xmap, $parent, $params, 0);
                 break;
@@ -85,7 +97,13 @@ final class xmap_com_phocadownload
         }
     }
 
-    private static function getCategoryTree(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $parent_id)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     * @param $parent_id
+     */
+    private static function getCategoryTree($xmap, stdClass $parent, array &$params, $parent_id)
     {
         $db = JFactory::getDbo();
 
@@ -96,24 +114,28 @@ final class xmap_com_phocadownload
             ->where('c.published = 1')
             ->order('c.ordering');
 
-        if (!$params['show_unauth']) {
+        if (!$params['show_unauth'])
+        {
             $query->where('c.access IN(' . $params['groups'] . ')');
         }
 
-        if ($params['language_filter']) {
+        if ($params['language_filter'])
+        {
             $query->where('c.language IN(' . $db->quote(JFactory::getLanguage()->getTag()) . ', ' . $db->quote('*') . ')');
         }
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
 
-        if (empty($rows)) {
+        if (empty($rows))
+        {
             return;
         }
 
         $xmap->changeLevel(1);
 
-        foreach ($rows as $row) {
+        foreach ($rows as $row)
+        {
             $node = new stdclass;
             $node->id = $parent->id;
             $node->name = $row->title;
@@ -124,11 +146,13 @@ final class xmap_com_phocadownload
             $node->pid = $row->parent_id;
             $node->link = PhocaDownloadRoute::getCategoryRoute($row->id . ':' . $row->alias);
 
-            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid=')) {
+            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid='))
+            {
                 $node->link .= '&Itemid=' . $parent->id;
             }
 
-            if ($xmap->printNode($node) !== false) {
+            if ($xmap->printNode($node) !== false)
+            {
                 self::getDownloads($xmap, $parent, $params, $row->id);
             }
         }
@@ -136,11 +160,18 @@ final class xmap_com_phocadownload
         $xmap->changeLevel(-1);
     }
 
-    private static function getDownloads(XmapDisplayer &$xmap, stdClass &$parent, array &$params, $catid)
+    /**
+     * @param XmapDisplayerInterface $xmap
+     * @param stdClass $parent
+     * @param array $params
+     * @param $catid
+     */
+    private static function getDownloads($xmap, stdClass $parent, array &$params, $catid)
     {
         self::getCategoryTree($xmap, $parent, $params, $catid);
 
-        if (!$params['include_downloads']) {
+        if (!$params['include_downloads'])
+        {
             return;
         }
 
@@ -156,24 +187,28 @@ final class xmap_com_phocadownload
             ->where('(d.publish_down = ' . $db->quote($db->getNullDate()) . ' OR d.publish_down >= ' . $db->quote($now) . ')')
             ->order('d.ordering');
 
-        if (!$params['show_unauth']) {
+        if (!$params['show_unauth'])
+        {
             $query->where('d.access IN(' . $params['groups'] . ')');
         }
 
-        if ($params['language_filter']) {
+        if ($params['language_filter'])
+        {
             $query->where('d.language IN(' . $db->quote(JFactory::getLanguage()->getTag()) . ', ' . $db->quote('*') . ')');
         }
 
         $db->setQuery($query);
         $rows = $db->loadObjectList();
 
-        if (empty($rows)) {
+        if (empty($rows))
+        {
             return;
         }
 
         $xmap->changeLevel(1);
 
-        foreach ($rows as $row) {
+        foreach ($rows as $row)
+        {
             $node = new stdclass;
             $node->id = $parent->id;
             $node->name = $row->title;
@@ -183,7 +218,8 @@ final class xmap_com_phocadownload
             $node->changefreq = $params['download_changefreq'];
             $node->link = PhocaDownloadRoute::getFileRoute($row->id . ':' . $row->alias);
 
-            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid=')) {
+            if ($params['itemid_workaround'] && !strstr($node->link, 'Itemid='))
+            {
                 $node->link .= '&Itemid=' . $parent->id;
             }
 
