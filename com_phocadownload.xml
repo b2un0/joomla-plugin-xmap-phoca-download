@@ -18,6 +18,8 @@
     <languages folder="language">
         <language tag="en-GB">en-GB/en-GB.plg_xmap_com_phocadownload.ini</language>
         <language tag="en-GB">en-GB/en-GB.plg_xmap_com_phocadownload.sys.ini</language>
+        <language tag="fr-FR">fr-FR/fr-FR.plg_xmap_com_phocadownload.ini</language>
+        <language tag="fr-FR">fr-FR/fr-FR.plg_xmap_com_phocadownload.sys.ini</language>
     </languages>
     <config>
         <fields name="params">
